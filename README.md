@@ -18,5 +18,3 @@ This project is built on a modern, robust tech stack:
 ### Architecture Diagram
 
 The application follows a modern full-stack architecture leveraging Next.js and Firebase.
-
-![Next.js Architecture Diagram](https://storage.googleapis.com/studioprompt/nextjs_architecture.png)
