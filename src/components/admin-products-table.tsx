@@ -74,9 +74,7 @@ export function AdminProductsTable({
                     {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
                     <DropdownMenuItem>View Product</DropdownMenuItem>
                     <DropdownMenuItem>Resolve</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
-                      Delete
-                    </DropdownMenuItem>
+                    {/* delete option*/}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

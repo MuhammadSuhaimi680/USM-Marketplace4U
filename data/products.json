@@ -102,18 +102,6 @@
     "sold": true
   },
   {
-    "name": "Bugatti",
-    "description": "WHAT COLOUR IS YOUR BUGATTI?",
-    "price": 798,
-    "category": "Other",
-    "condition": "Good",
-    "imageUrl": "/products-images/1763808328806_bugatti_chiron.jpg",
-    "imageHint": "",
-    "sellerId": "avs5INwX7LRZKEzFQ1h2dsEXi923",
-    "createdAt": "2025-11-22T10:45:29.043Z",
-    "id": "local_1763808329045_k0xwpeu9t"
-  },
-  {
     "name": "Fridge",
     "description": "Fridge Fridge Fridge",
     "price": 200,
@@ -136,5 +124,17 @@
     "sellerId": "avs5INwX7LRZKEzFQ1h2dsEXi923",
     "createdAt": "2025-11-22T14:06:30.036Z",
     "id": "local_1763820390038_mkz19mpqb"
+  },
+  {
+    "name": "Bugatti",
+    "description": "MY OLD BUGATTI TOY",
+    "price": 60,
+    "category": "Other",
+    "condition": "Good",
+    "imageUrl": "/products-images/1763821015080_bugatti_chiron.jpg",
+    "imageHint": "",
+    "sellerId": "avs5INwX7LRZKEzFQ1h2dsEXi923",
+    "createdAt": "2025-11-22T14:16:55.232Z",
+    "id": "local_1763821015234_p4598wx81"
   }
 ]

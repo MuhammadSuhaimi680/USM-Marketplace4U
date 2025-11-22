@@ -177,7 +177,7 @@ export default function MyProductsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
                           <DropdownMenuItem
                             onClick={() => handleMarkAsSold(product.id)}
                             className="text-green-600"
