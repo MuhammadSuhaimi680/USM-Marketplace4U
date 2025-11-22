@@ -1,4 +1,8 @@
-import { users, products } from '@/lib/data';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { getUsers, getProducts } from '@/lib/firestore';
+import type { User, Product } from '@/lib/types';
 import {
   Card,
   CardContent,
@@ -12,9 +16,40 @@ import { AdminUsersTable } from '@/components/admin-users-table';
 import { Users, ShoppingBag, DollarSign } from 'lucide-react';
 
 export default function AdminDashboardPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [usersData, productsData] = await Promise.all([
+          getUsers(),
+          getProducts(),
+        ]);
+        setUsers(usersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
   const totalUsers = users.length;
   const totalProducts = products.length;
   const totalSalesValue = products.reduce((sum, p) => sum + p.price, 0);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 md:px-6">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto space-y-8 px-4 py-12 md:px-6">

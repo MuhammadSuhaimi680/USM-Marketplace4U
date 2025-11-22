@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="border-t bg-card">
       <div className="container mx-auto flex flex-col items-center justify-between py-6 px-4 md:flex-row md:px-6">
         <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Campus Cart. All rights reserved.
+          © {new Date().getFullYear()} USM Marketplace4U. All rights reserved.
         </p>
         <nav className="mt-4 flex gap-4 sm:gap-6 md:mt-0">
           <Link

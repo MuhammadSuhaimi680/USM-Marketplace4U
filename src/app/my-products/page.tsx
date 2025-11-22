@@ -1,6 +1,10 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { products, users } from '@/lib/data';
+import { getProductsBySeller } from '@/lib/firestore';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -27,14 +31,49 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-// NOTE: This page is not using the simulated user from the header.
-// It defaults to showing products for the first user in the mock data.
-// This would be replaced with actual user data in a real app.
-
 export default function MyProductsPage() {
-  // Mocking the logged-in user as the admin user for demo purposes
-  const currentUser = users[0];
-  const myProducts = products.filter((p) => p.sellerId === currentUser.id);
+  const { user, loading: authLoading } = useAuth();
+  const [myProducts, setMyProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchMyProducts() {
+      if (!user) return;
+      try {
+        const productsData = await getProductsBySeller(user.id);
+        setMyProducts(productsData);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (!authLoading) {
+      fetchMyProducts();
+    }
+  }, [user, authLoading]);
+
+  if (authLoading || loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 md:px-6">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-12 md:px-6">
+        <div className="text-center">
+          <p>Please log in to view your products.</p>
+          <Button asChild className="mt-4">
+            <Link href="/login">Login</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 md:px-6">

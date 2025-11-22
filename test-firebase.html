@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Firebase Connection</title>
+</head>
+<body>
+    <h1>Firebase Connection Test</h1>
+    <div id="status">Testing...</div>
+    
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsu2cHXBk-25KDZoeUaX1rE_vnUSg8g_w",
+            authDomain: "usm-marketplace4u.firebaseapp.com",
+            projectId: "usm-marketplace4u",
+            storageBucket: "usm-marketplace4u.firebasestorage.app",
+            messagingSenderId: "765268479230",
+            appId: "1:765268479230:web:9348b858e5a81b53a729af"
+        };
+        
+        const statusDiv = document.getElementById('status');
+        
+        try {
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            
+            statusDiv.innerHTML = '<p style="color: green;">✅ Firebase initialized successfully!</p><p>Now testing authentication...</p>';
+            
+            // Try to create a test user
+            createUserWithEmailAndPassword(auth, 'test@test.com', 'test123456')
+                .then((userCredential) => {
+                    statusDiv.innerHTML = '<p style="color: green;">✅ Authentication is working!</p>';
+                })
+                .catch((error) => {
+                    statusDiv.innerHTML = `<p style="color: red;">❌ Error: ${error.code}</p><p>${error.message}</p>`;
+                    
+                    if (error.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+                        statusDiv.innerHTML += '<h3>Solution:</h3><ol><li>Go to Firebase Console</li><li>Enable Authentication</li><li>Enable Email/Password provider</li></ol>';
+                    } else if (error.code === 'auth/email-already-in-use') {
+                        statusDiv.innerHTML = '<p style="color: green;">✅ Authentication is working! (Test user already exists)</p>';
+                    }
+                });
+        } catch (error) {
+            statusDiv.innerHTML = `<p style="color: red;">❌ Initialization Error: ${error.message}</p>`;
+        }
+    </script>
+</body>
+</html>

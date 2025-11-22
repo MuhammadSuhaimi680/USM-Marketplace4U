@@ -22,7 +22,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     return <div className="py-10 text-center">Product not found.</div>;
   }
 
-  const whatsappLink = `https://wa.me/${seller.phone}?text=Hi, I'm interested in your '${product.name}' listing on Campus Cart.`;
+  const whatsappLink = `https://wa.me/${seller.phone}?text=Hi, I'm interested in your '${product.name}' listing on USM Marketplace4U.`;
 
   return (
     <div className="container mx-auto px-4 py-12 md:px-6">

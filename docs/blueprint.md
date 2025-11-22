@@ -1,4 +1,4 @@
-# **App Name**: Campus Cart
+# **App Name**: USM Marketplace4U
 
 ## Core Features:
 

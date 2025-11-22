@@ -1,17 +1,33 @@
 'use client';
 
-import { useState } from 'react';
-import { products } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { getProducts } from '@/lib/firestore';
 import { ProductCard } from '@/components/product-card';
 import { FilterSidebar } from '@/components/filter-sidebar';
 import type { Product } from '@/lib/types';
 
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     category: 'all',
     price: 500,
     conditions: [] as string[],
   });
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const productsData = await getProducts();
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   const handleFilterChange = (
     newFilters: Partial<typeof filters>
@@ -46,7 +62,9 @@ export default function Home() {
           <FilterSidebar filters={filters} onFilterChange={handleFilterChange} />
         </aside>
         <main className="lg:col-span-3">
-          {filteredProducts.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-12">Loading products...</div>
+          ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
