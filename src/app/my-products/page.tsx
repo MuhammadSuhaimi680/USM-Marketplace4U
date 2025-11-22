@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getProductsBySeller } from '@/lib/firestore';
 import { useAuth } from '@/hooks/use-auth';
+import type { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -33,26 +33,51 @@ import {
 
 export default function MyProductsPage() {
   const { user, loading: authLoading } = useAuth();
-  const [myProducts, setMyProducts] = useState<any[]>([]);
+  const [myProducts, setMyProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchMyProducts() {
-      if (!user) return;
-      try {
-        const productsData = await getProductsBySeller(user.id);
-        setMyProducts(productsData);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
+  const fetchMyProducts = async () => {
+    if (!user) return;
+    try {
+      const response = await fetch('/api/products');
+      if (response.ok) {
+        const allProducts: Product[] = await response.json();
+        const sellerProducts = allProducts
+          .filter((p) => p.sellerId === user.id)
+          .filter((p) => !p.sold); // Filter out sold items
+        setMyProducts(sellerProducts);
       }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (!authLoading) {
+  useEffect(() => {
+    if (!authLoading && user) {
       fetchMyProducts();
     }
   }, [user, authLoading]);
+
+  const handleMarkAsSold = async (productId: string) => {
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sold: true }),
+      });
+
+      if (response.ok) {
+        // Remove the product from the list
+        setMyProducts((prev) => prev.filter((p) => p.id !== productId));
+      }
+    } catch (error) {
+      console.error('Error marking product as sold:', error);
+    }
+  };
 
   if (authLoading || loading) {
     return (
@@ -70,6 +95,18 @@ export default function MyProductsPage() {
           <Button asChild className="mt-4">
             <Link href="/login">Login</Link>
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect admin users away from this page
+  if (user.role === "admin") {
+    return (
+      <div className="container mx-auto px-4 py-12 md:px-6">
+        <div className="text-center">
+          <p className="text-lg font-semibold">This page is for sellers only.</p>
+          <p className="mt-2 text-muted-foreground">Please visit the <Link href="/admin" className="text-primary hover:underline">Admin Dashboard</Link> instead.</p>
         </div>
       </div>
     );
@@ -141,6 +178,12 @@ export default function MyProductsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onClick={() => handleMarkAsSold(product.id)}
+                            className="text-green-600"
+                          >
+                            Mark as Sold
+                          </DropdownMenuItem>
                           <DropdownMenuItem>Edit</DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive">
                             Delete

@@ -98,14 +98,14 @@ export default function AdminDashboardPage() {
 
       <Tabs defaultValue="products">
         <TabsList>
-          <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsTrigger value="products">Reported Products</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
         </TabsList>
         <TabsContent value="products">
           <Card>
             <CardHeader>
-              <CardTitle>Products</CardTitle>
-              <CardDescription>Manage all product listings.</CardDescription>
+              <CardTitle>Reported Products</CardTitle>
+              <CardDescription>Manage all reported product listings.</CardDescription>
             </CardHeader>
             <CardContent>
               <AdminProductsTable products={products} users={users} />

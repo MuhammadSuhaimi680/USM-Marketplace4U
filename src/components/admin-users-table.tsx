@@ -28,13 +28,13 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
   return (
     <Table>
       <TableHeader>
-        <TableRow>
+        <TableRow> 
           <TableHead>User</TableHead>
           <TableHead>Role</TableHead>
           <TableHead>Listings</TableHead>
           <TableHead>Joined</TableHead>
           <TableHead>
-            <span className="sr-only">Actions</span>
+            { /* <span className="sr-only">Actions</span> */ } 
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -70,7 +70,7 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
                   <DropdownMenuItem>View Profile</DropdownMenuItem>
                   <DropdownMenuItem>Suspend User</DropdownMenuItem>
                 </DropdownMenuContent>

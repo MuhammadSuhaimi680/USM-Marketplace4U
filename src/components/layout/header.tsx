@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Search, UserCircle, Menu, LogOut } from "lucide-react";
 import Image from 'next/image';
@@ -24,6 +25,7 @@ const navLinks = [
 ];
 
 export function Header() {
+  const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut, loading } = useAuth();
@@ -37,6 +39,13 @@ export function Header() {
     router.push('/');
   };
 
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
       <div className="container mx-auto flex h-16 items-center px-4 md:px-6">
@@ -46,11 +55,15 @@ export function Header() {
         </Link>
 
         <div className="relative hidden flex-1 md:flex">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search for products..."
-            className="w-full max-w-sm pl-10"
-          />
+          <form onSubmit={handleSearch} className="w-full">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Search for products..."
+              className="w-full max-w-sm pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </form>
         </div>
 
         <nav className="hidden items-center gap-4 md:flex ml-auto">
@@ -64,7 +77,7 @@ export function Header() {
               <Link href={link.href}>{link.label}</Link>
             </Button>
           ))}
-          {user && (user.role === "seller" || user.role === "admin") && (
+          {user && user.role === "seller" && (
             <Button variant="ghost" asChild className={pathname === '/my-products' ? "text-primary" : ""}>
               <Link href="/my-products">My Products</Link>
             </Button>
@@ -143,7 +156,7 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                {user && (user.role === "seller" || user.role === "admin") && (
+                {user && user.role === "seller" && (
                   <Link
                     href="/my-products"
                     className={`flex items-center gap-4 px-2.5 ${

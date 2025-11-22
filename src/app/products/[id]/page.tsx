@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { products, users } from '@/lib/data';
+import { users, products as sampleProducts } from '@/lib/data';
 import type { Product, User } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,18 +11,30 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, MessageCircle } from 'lucide-react';
+import { getProductById } from '@/lib/firestore-server';
+import { ReportProductDialog } from '@/components/report-product-dialog';
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const product: Product | undefined = products.find((p) => p.id === params.id);
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  let product = await getProductById(id);
+  
+  // Fallback to sample data if not found in Firestore
+  if (!product) {
+    product = sampleProducts.find((p) => p.id === id) || null;
+  }
+
+  if (!product) {
+    return <div className="py-10 text-center">Product not found.</div>;
+  }
+
   const seller: User | undefined = users.find(
     (u) => u.id === product?.sellerId
   );
 
-  if (!product || !seller) {
-    return <div className="py-10 text-center">Product not found.</div>;
-  }
-
-  const whatsappLink = `https://wa.me/${seller.phone}?text=Hi, I'm interested in your '${product.name}' listing on USM Marketplace4U.`;
+  // Create WhatsApp link - use seller phone if available, otherwise use a generic message
+  const whatsappLink = seller 
+    ? `https://wa.me/${seller.phone}?text=Hi, I'm interested in your '${product.name}' listing on USM Marketplace4U.`
+    : `https://wa.me/?text=Hi, I'm interested in the '${product.name}' listing on USM Marketplace4U.`;
 
   return (
     <div className="container mx-auto px-4 py-12 md:px-6">
@@ -63,19 +75,28 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           </div>
           <Card>
             <CardHeader className="flex flex-row items-center gap-4">
-              <Avatar className="h-14 w-14">
-                <AvatarImage src={seller.avatarUrl} alt={seller.name} />
-                <AvatarFallback>{seller.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle>{seller.name}</CardTitle>
-                <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span>5.0 (12 reviews)</span>
+              {seller ? (
+                <>
+                  <Avatar className="h-14 w-14">
+                    <AvatarImage src={seller.avatarUrl} alt={seller.name} />
+                    <AvatarFallback>{seller.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <CardTitle>{seller.name}</CardTitle>
+                    <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span>5.0 (12 reviews)</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <CardTitle>Seller</CardTitle>
+                  <p className="text-sm text-muted-foreground">Get in touch with the seller</p>
                 </div>
-              </div>
+              )}
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               <Button
                 asChild
                 className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
@@ -85,6 +106,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   Contact Seller via WhatsApp
                 </a>
               </Button>
+              <ReportProductDialog
+                productId={product.id}
+                productName={product.name}
+                userId={null}
+              />
             </CardContent>
           </Card>
         </div>

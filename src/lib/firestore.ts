@@ -3,6 +3,7 @@
 import { collection, query, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User, Product } from '@/lib/types';
+import { products as sampleProducts } from '@/lib/data';
 
 // Users
 export async function getUsers(): Promise<User[]> {
@@ -18,9 +19,22 @@ export async function getUserById(userId: string): Promise<User | null> {
 
 // Products
 export async function getProducts(): Promise<Product[]> {
-  const productsCol = collection(db, 'products');
-  const productSnapshot = await getDocs(productsCol);
-  return productSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product));
+  try {
+    const productsCol = collection(db, 'products');
+    const productSnapshot = await getDocs(productsCol);
+    const products = productSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product));
+    
+    // If no products in Firestore, return sample data
+    if (products.length === 0) {
+      return sampleProducts;
+    }
+    
+    return products;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    // Fall back to sample data on error
+    return sampleProducts;
+  }
 }
 
 export async function getProductById(productId: string): Promise<Product | null> {

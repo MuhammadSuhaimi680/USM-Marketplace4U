@@ -34,6 +34,16 @@ export const users: User[] = [
     listingsCount: 1,
     createdAt: '2023-10-03T12:00:00Z',
   },
+  {
+    id: 'avs5INwX7LRZKEzFQ1h2dsEXi923',
+    name: 'Mark Goldbridge',
+    email: 'mark@campuscart.com',
+    role: 'seller',
+    phone: '60123456789',
+    avatarUrl: 'https://picsum.photos/seed/markgoldbridge/100/100',
+    listingsCount: 3,
+    createdAt: '2023-10-04T13:00:00Z',
+  },
 ];
 
 export const products: Product[] = [

@@ -8,6 +8,13 @@ import { AuthProvider } from '@/hooks/use-auth';
 export const metadata: Metadata = {
   title: 'USM Marketplace4U',
   description: 'A recommerce platform for USM students.',
+  icons: [
+    {
+      rel: 'icon',
+      url: '/logo.ico',
+      type: 'image/png',
+    }
+  ],
 };
 
 export default function RootLayout({

@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { generateProductListingDescription } from '@/ai/flows/generate-product-listing-description';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -44,16 +46,83 @@ const productSchema = z.object({
   condition: z.enum(['New', 'Like New', 'Good', 'Fair'], {
     required_error: 'You need to select a condition.',
   }),
-  imageUrl: z.string().url('Must be a valid URL'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
 export default function NewProductPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Check auth and role
+  useEffect(() => {
+    if (!authLoading && (!user || user.role !== 'seller')) {
+      toast({
+        title: 'Access Denied',
+        description: 'Only sellers can create product listings.',
+        variant: 'destructive',
+      });
+      router.push('/');
+    }
+  }, [user, authLoading, router, toast]);
+
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 md:px-6">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'seller') {
+    return (
+      <div className="container mx-auto px-4 py-12 md:px-6">
+        <div className="text-center">
+          <p className="text-lg font-semibold">Access Denied</p>
+          <p className="mt-2 text-muted-foreground">Only sellers can create product listings.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid file',
+          description: 'Please select an image file.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: 'File too large',
+          description: 'Image must be less than 5MB.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -63,7 +132,6 @@ export default function NewProductPage() {
       description: '',
       category: undefined,
       condition: undefined,
-      imageUrl: '',
     },
   });
 
@@ -98,13 +166,80 @@ export default function NewProductPage() {
     }
   };
 
-  function onSubmit(data: ProductFormValues) {
-    console.log(data);
-    toast({
-      title: 'Product Listed!',
-      description: `${data.name} has been successfully listed for sale.`,
-    });
-    form.reset();
+  async function onSubmit(data: ProductFormValues) {
+    if (!imageFile) {
+      toast({
+        title: 'Image required',
+        description: 'Please select an image for your product.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Upload image to public folder
+      const formData = new FormData();
+      formData.append('file', imageFile);
+
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const uploadData = await uploadResponse.json();
+      const imageUrl = uploadData.url;
+
+      // Save product using local API
+      const productResponse = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: data.name,
+          price: data.price,
+          description: data.description,
+          category: data.category,
+          condition: data.condition,
+          imageUrl,
+          imageHint: '',
+          sellerId: user?.id || '',
+        }),
+      });
+
+      if (!productResponse.ok) {
+        throw new Error('Failed to add product');
+      }
+
+      toast({
+        title: 'Product Listed!',
+        description: `${data.name} has been successfully listed for sale.`,
+      });
+      
+      form.reset();
+      setImageFile(null);
+      setImagePreview('');
+      setAiPrompt('');
+      
+      // Redirect to my products page
+      setTimeout(() => {
+        router.push('/my-products');
+      }, 1500);
+    } catch (error) {
+      console.error('Error submitting product:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to list product. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -180,7 +315,7 @@ export default function NewProductPage() {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price ($)</FormLabel>
+                      <FormLabel>Price (RM)</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="25.00" {...field} />
                       </FormControl>
@@ -255,22 +390,32 @@ export default function NewProductPage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-4">
+                <Label>Product Image</Label>
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                  />
+                  {imagePreview && (
+                    <div className="relative aspect-square w-full max-w-xs overflow-hidden rounded-lg">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Supported formats: JPG, PNG, GIF, WebP. Max size: 5MB
+                </p>
+              </div>
 
-              <Button type="submit" size="lg">
-                List Product
+              <Button type="submit" size="lg" disabled={isSubmitting}>
+                {isSubmitting ? 'Uploading...' : 'List Product'}
               </Button>
             </form>
           </Form>

@@ -60,7 +60,7 @@ export function AdminProductsTable({
               </TableCell>
               <TableCell>RM{product.price.toFixed(2)}</TableCell>
               <TableCell>
-                <Badge variant="outline">Active</Badge>
+                <Badge variant="outline">Unresolved</Badge>
               </TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -71,9 +71,9 @@ export function AdminProductsTable({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
                     <DropdownMenuItem>View Product</DropdownMenuItem>
-                    <DropdownMenuItem>Suspend</DropdownMenuItem>
+                    <DropdownMenuItem>Resolve</DropdownMenuItem>
                     <DropdownMenuItem className="text-destructive">
                       Delete
                     </DropdownMenuItem>

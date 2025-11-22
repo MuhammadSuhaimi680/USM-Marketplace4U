@@ -9,6 +9,14 @@ export type User = {
   createdAt: string;
 };
 
+export type ProductReport = {
+  id: string;
+  reason: string;
+  reportedBy: string;
+  reportedAt: string;
+  status?: 'pending' | 'approved' | 'rejected';
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -20,4 +28,6 @@ export type Product = {
   imageHint: string;
   sellerId: string;
   createdAt: string;
+  sold?: boolean;
+  reports?: ProductReport[];
 };
