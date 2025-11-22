@@ -124,5 +124,17 @@
     "sellerId": "avs5INwX7LRZKEzFQ1h2dsEXi923",
     "createdAt": "2025-11-22T10:50:12.394Z",
     "id": "local_1763808612395_mz8gcmkb6"
+  },
+  {
+    "name": "Gaming Chair",
+    "description": "Gaming Chair For Gamers",
+    "price": 170,
+    "category": "Furniture",
+    "condition": "Like New",
+    "imageUrl": "/products-images/1763820389880_gaming_chair.jpg",
+    "imageHint": "",
+    "sellerId": "avs5INwX7LRZKEzFQ1h2dsEXi923",
+    "createdAt": "2025-11-22T14:06:30.036Z",
+    "id": "local_1763820390038_mkz19mpqb"
   }
 ]

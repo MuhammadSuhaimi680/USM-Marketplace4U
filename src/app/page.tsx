@@ -67,10 +67,10 @@ export default function Home() {
     <div className="container mx-auto px-4 py-8 md:px-6">
       <div className="mb-12 text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tight">
-          Find Your Next Campus Treasure
+          Find Your Next Campus Treasure 💎
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          Buy and sell pre-loved items within your college community.
+          Buy and sell pre-loved items within your lovely USMians😊
         </p>
       </div>
 
