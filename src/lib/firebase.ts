@@ -14,6 +14,9 @@ const firebaseConfig = {
 // Initialize Firebase only if it hasn't been initialized already
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
+console.log("🔑 API KEY LOADED:", process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
+
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export default app;

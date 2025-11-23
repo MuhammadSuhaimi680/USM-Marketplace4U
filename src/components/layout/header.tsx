@@ -53,18 +53,20 @@ export function Header() {
           <Image src={logo} alt="USM Marketplace4U Logo" width={32} height={32} className="rounded-md" />
           <span className="font-headline text-lg font-bold">USM Marketplace4U</span>
         </Link>
-
-        <div className="relative hidden flex-1 md:flex">
-          <form onSubmit={handleSearch} className="w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Search for products..."
-              className="w-full max-w-sm pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </form>
-        </div>
+        
+        {!pathname.startsWith('/admin') && (
+          <div className="relative hidden flex-1 md:flex">
+            <form onSubmit={handleSearch} className="w-full">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Search for products..."
+                className="w-full max-w-sm pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
+          </div>
+          )}
 
         <nav className="hidden items-center gap-4 md:flex ml-auto">
           {navLinks.map((link) => (
