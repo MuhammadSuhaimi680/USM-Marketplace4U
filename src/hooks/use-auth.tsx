@@ -32,24 +32,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setFirebaseUser(firebaseUser);
-      
-      if (firebaseUser) {
-        // Fetch user data from Firestore
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          setUser(userDoc.data() as User);
-        }
-      } else {
-        setUser(null);
-      }
-      
-      setLoading(false);
-    });
+  const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    setFirebaseUser(firebaseUser);
 
-    return unsubscribe;
-  }, []);
+    if (!firebaseUser) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const ref = doc(db, "users", firebaseUser.uid);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        setUser(snap.data() as User);
+      } else {
+        setUser(null); // first login / no profile yet
+      }
+    } catch (error) {
+      console.error("Failed to fetch user doc:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
+
+    
 
   const signIn = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
