@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { getUsers, getProducts } from '@/lib/firestore';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 import type { User, Product } from '@/lib/types';
 import {
   Card,
@@ -31,6 +33,8 @@ import {
 } from 'recharts';
 
 export default function AdminDashboardPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +43,12 @@ export default function AdminDashboardPage() {
   const [timelineData, setTimelineData] = useState<any[]>([]);
 
   useEffect(() => {
+    // Redirect if not admin
+    if(!authLoading && (!user || user.role !== 'admin')){
+      router.push('/');
+      return;
+    }
+
     async function fetchData() {
       try {
         const [usersData, productsData] = await Promise.all([
@@ -99,20 +109,34 @@ export default function AdminDashboardPage() {
       }
     }
 
-    fetchData();
-  }, []);
+    if(user?.role === 'admin'){
+      fetchData();
+    }
 
-  const totalUsers = users.length;
-  const totalProducts = products.length;
-  const totalSalesValue = products.reduce((sum, p) => sum + p.price, 0);
+  }, [user, authLoading, router]);
 
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="container mx-auto px-4 py-12 md:px-6">
         <div className="text-center">Loading...</div>
       </div>
     );
   }
+  if (!user || user.role !== 'admin') {
+    return(
+      <div>
+        <h1 className="flex items-center justify-center h-48 text-4xl font-bold">Error 403: Forbidden</h1>
+        <p className="flex items-center h-48 justify-center">You don't have any permission to access this page.</p>
+        <br/>
+        <p className="flex flex-col items-center justify-center mb-4">Redirecting to previous page...</p>
+      </div>
+    );
+  }
+
+  const totalUsers = users.length;
+  const totalProducts = products.length;
+  const totalSalesValue = products.reduce((sum, p) => sum + p.price, 0);
+
 
   return (
     <div className="container mx-auto space-y-8 px-4 py-12 md:px-6">

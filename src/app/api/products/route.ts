@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addProduct, loadProducts } from '@/lib/db';
 import type { Product } from '@/lib/types';
-import { getServerSession } from ""
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET() {
   try {
@@ -19,7 +19,33 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
     const body = await request.json();
+
+    // If User Isn't Logged In
+    if (!session){
+       return NextResponse.json(
+        {error: 'Unauthorised'},
+        {status: 401}
+       );
+    }
+
+    // If user isn't a seller
+     if (session.user.role !== 'seller' && session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Only sellers can create products' },
+        { status: 403 }
+      );
+    }
+
+     // Verify user can only create products for themselves (unless admin)
+     if (session.user.role !== 'seller' && session.user.role !== body.sellerId) {
+      return NextResponse.json(
+        { error: 'Only sellers can create products' },
+        { status: 403 }
+      );
+    }
 
     // Validate required fields
     if (!body.name || !body.price || !body.category || !body.sellerId) {
