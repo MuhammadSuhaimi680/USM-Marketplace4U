@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addProduct, loadProducts } from '@/lib/db';
 import type { Product } from '@/lib/types';
+import { getServerSession } from ""
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET() {
   try {
@@ -18,7 +20,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate required fields
     if (!body.name || !body.price || !body.category || !body.sellerId) {
       return NextResponse.json(
