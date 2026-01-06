@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ProductCard } from '@/components/product-card';
 import { FilterSidebar } from '@/components/filter-sidebar';
 import type { Product } from '@/lib/types';
@@ -13,6 +14,8 @@ export default function Home() {
     price: 500,
     conditions: [] as string[],
   });
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
 
   const fetchProducts = async () => {
     try {
@@ -58,8 +61,14 @@ export default function Home() {
     const conditionMatch =
       filters.conditions.length === 0 ||
       filters.conditions.includes(product.condition.toLowerCase().replace(' ', ''));
+    
+    // Search match - check name, description, and category
+    const searchMatch = !searchQuery || 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return categoryMatch && priceMatch && conditionMatch;
+    return categoryMatch && priceMatch && conditionMatch && searchMatch;
   });
 
 
@@ -72,6 +81,11 @@ export default function Home() {
         <p className="mt-4 text-lg text-muted-foreground">
           Buy and sell pre-loved items within your lovely USMians😊
         </p>
+        {searchQuery && (
+          <p className="mt-4 text-base text-muted-foreground">
+            Showing results for: <span className="font-semibold text-foreground">"{searchQuery}"</span>
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
