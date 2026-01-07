@@ -54,6 +54,11 @@ export const authOptions = {
   },
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 60, // 30 minutes in seconds
+    updateAge: 24 * 60 * 60, // Re-validate every 24 hours
+  },
+  jwt: {
+    maxAge: 30 * 60, // 30 minutes in seconds
   },
 };
 

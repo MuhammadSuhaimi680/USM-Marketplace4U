@@ -22,6 +22,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, name: string, role: 'buyer' | 'seller') => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  lastActivityTime: number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastActivityTime, setLastActivityTime] = useState<number>(Date.now());
 
   useEffect(() => {
   const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -65,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
+    setLastActivityTime(Date.now());
   };
 
   const signUp = async (email: string, password: string, name: string, role: 'buyer' | 'seller') => {
@@ -113,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, firebaseUser, loading, signIn, signUp, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, firebaseUser, loading, signIn, signUp, signInWithGoogle, signOut, lastActivityTime }}>
       {children}
     </AuthContext.Provider>
   );

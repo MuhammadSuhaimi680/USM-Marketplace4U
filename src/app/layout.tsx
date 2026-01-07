@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { AuthProvider } from '@/hooks/use-auth';
+import { SessionTimeoutProvider } from '@/components/session-timeout-provider';
 
 export const metadata: Metadata = {
   title: 'USM Marketplace4U',
@@ -34,11 +35,13 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AuthProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </div>
+          <SessionTimeoutProvider>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-grow">{children}</main>
+              <Footer />
+            </div>
+          </SessionTimeoutProvider>
           <Toaster />
         </AuthProvider>
       </body>
